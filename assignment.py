@@ -291,9 +291,9 @@ def generateChallengeReport(updatedChallengesList):
     most_difficult_challenge=""
     difficult_avg_time =0
     displayString = "\nCHALLENGE INFORMATION\n"
-    displayString = displayString + "+-----------------------"*6 + "+\n"
-    displayString = displayString + "|\t{0:10}\t|\t{1:12}\t|\t{2:10}\t|\t{3:10}\t|\t{4:10}\t|\t{5:10}\t|\n".format("Challenge","Name","Weight","Nfinish","Nongoing","AverageTime")
-    displayString = displayString + "+-----------------------"*6 + "+\n"
+    displayString = displayString + "+-----------------"*6 + "+\n"
+    displayString = displayString + "|\t{0:10}|\t{1:15}|\t{2:10}|\t{3:10}|\t{4:10}|\t{5:10}|\n".format("Challenge","Name","Weight","Nfinish","Nongoing","AverageTime")
+    displayString = displayString + "+-----------------"*6 + "+\n"
     for chl in updatedChallengesList:
         avg = float(chl.totalTime)/float(chl.nfinish)
 
@@ -303,9 +303,9 @@ def generateChallengeReport(updatedChallengesList):
 
         averageTime = "{:.2f}".format(avg)
         weight = "{:.1f}".format(float(chl.weight.strip()))
-        displayString = displayString + "|\t{0:10}\t|\t{1:12}({2})\t|\t{3:10}\t|\t{4:10}\t|\t{5:10}\t|\t{6:10}\t|\n".format(chl.id,chl.name,chl.type,weight,chl.nfinish,chl.nongoing,averageTime)
+        displayString = displayString + "|\t{0:10}|\t{1:12}({2})|\t{3:10}|\t{4:10}|\t{5:10}|\t{6:10}|\n".format(chl.id,chl.name,chl.type,weight,chl.nfinish,chl.nongoing,averageTime)
     
-    displayString = displayString + "+-----------------------"*6 + "+\n"
+    displayString = displayString + "+-----------------"*6 + "+\n"
     print(displayString)
 
     #WRITE TO FILE
