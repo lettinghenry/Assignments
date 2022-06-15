@@ -323,10 +323,10 @@ class Competition():
         
         
 class Student():
-    def __init__(self,id,name,val3):
+    def __init__(self,id,name,type):
         self.id = id
         self.name = name
-        self.val3 = val3    
+        self.type = type    
 
         
 
