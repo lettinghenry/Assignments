@@ -234,6 +234,45 @@ def readResult(idval,previousResult):
 
             return MATRIX_RESULT
 
+            
+        elif idval == 2:
+            Matrix = []
+            file = read_file("students.txt")  # read file
+            if(file != ''):
+
+                itemList = file.read().split("\n")
+                itemFields=""
+                isFirstTime = True
+                for item in itemList:
+                    itemFields = item.split(",")
+
+                    w, h = len(itemFields), len(itemList)
+
+                #Initialize matrix
+                Matrix = [[0 for x in range(w)] for y in range(h)]
+                # print("Matrix 2: " ,Matrix)
+
+                #DATA MAP
+                #printData(Matrix)
+                #LOAD MATIX
+            MATRIX_RESULT = loadChallengesMatrix(Matrix)
+            Matrix = MATRIX_RESULT[0]
+            challengesList = MATRIX_RESULT[1]
+            competitionMatrix = previousResult
+            updatedChallengesList = updateChallengeInfo(challengesList,competitionMatrix)
+            challengeOutput = generateChallengeReport(updatedChallengesList)
+
+
+            #print(Matrix)
+            most_difficult_challenge =challengeOutput[0]
+            difficult_avg_time = challengeOutput[1]
+            num_students = len(Matrix) - 1
+            num_challenges = len(Matrix[0]) - 1
+            print ("The most difficult challenge is ", most_difficult_challenge.name ,"(",most_difficult_challenge.id,") with an average time of","{:.2f}".format(difficult_avg_time),"minutes.")
+            print ("Report competition_report.txt generated!")
+
+            return MATRIX_RESULT
+
 
 def updateChallengeInfo(challengesList,competitionMatrix):
     #Loop through all the competitions and do a challenges summary
