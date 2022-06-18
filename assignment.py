@@ -1,10 +1,16 @@
 import os
 import sys
+import datetime
+
 
 
 #Static objects
 global top_student_average
 global top_student 
+competitionInfo = ""
+challengeInfo =""
+studentInfo=""
+
 
 
 #static methods
@@ -144,18 +150,18 @@ def loadStudentMatrix(Matrix):
 
 #Parse result
 def readResult(idval,previousResult):
-    COMPETITION = 0
-    CHALLENGE = 1
-    STUDENT = 2
-    if idval != 5:
+    COMPETITION = 0#FOR REFERENCE
+    CHALLENGE = 1#FOR REFERENCE
+    STUDENT = 2#FOR REFERENCE
+    if idval != 5:#DUMMY check
         #COMPETITION
         if idval == 0:
                 file = read_file("results.txt")  # read file
                 if(file != ''):
                     #print("\n\n--------------------------Start of DATA----------------------")
-                    print("\nCOMPETITION DASHBOARD")
+                    displayString = "\nCOMPETITION DASHBOARD\n"
                     itemList = file.read().split("\n")
-                    print("|-----------------------------------------------------------------------------------------------|")
+                    displayString = displayString+"|-----------------------------------------------------------------------------------------------|\n"
                     itemFields=""
                     isFirstTime = True
                     for item in itemList:
@@ -176,8 +182,8 @@ def readResult(idval,previousResult):
                                 lineDisplayString = "--"
                             string =string +  lineDisplayString + "\t|\t"
            
-                        print(string)
-                        print("|---------------+---------------+---------------+---------------+---------------+---------------|")
+                        displayString = displayString + string+"\n"
+                        displayString = displayString + "|---------------+---------------+---------------+---------------+---------------+---------------|\n"
         
 
                         w, h = len(itemFields), len(itemList)
@@ -195,8 +201,11 @@ def readResult(idval,previousResult):
                     #print(Matrix)
                     num_students = len(Matrix) - 1
                     num_challenges = len(Matrix[0]) - 1
-                    print ("There are",num_students,"Students and",num_challenges,"Challenges")
-                    print ("The top student is",MATRIX_RESULT[2],"with an average time of","{:.2f}".format(MATRIX_RESULT[1]),"minutes.")
+                    displayString = displayString +"There are "+str(num_students)+" Students and "+str(num_challenges)+" Challenges\n"
+                    displayString = displayString + "The top student is "+str(MATRIX_RESULT[2])+" with an average time of "+"{:.2f}".format(MATRIX_RESULT[1])+" minutes.\n"
+                    global competitionInfo
+                    competitionInfo = displayString
+                    print(competitionInfo)
 
                     return MATRIX_RESULT
 
@@ -226,14 +235,19 @@ def readResult(idval,previousResult):
                 competitionMatrix = previousResult
                 updatedChallengesList = updateChallengeInfo(challengesList,competitionMatrix)
                 challengeOutput = generateChallengeReport(updatedChallengesList)
-
+                
 
                 #print(Matrix)
                 most_difficult_challenge =challengeOutput[0]
                 difficult_avg_time = challengeOutput[1]
+                displayString = challengeOutput[2]
                 
-                print ("The most difficult challenge is ", most_difficult_challenge.name ,"(",most_difficult_challenge.id,") with an average time of","{:.2f}".format(difficult_avg_time),"minutes.")
+                displayString =  displayString +"The most difficult challenge is "+ str(most_difficult_challenge.name) +" ("+str(most_difficult_challenge.id)+") with an average time of "+"{:.2f}".format(difficult_avg_time)+" minutes."
+                global challengeInfo
+                challengeInfo = displayString
+                print(challengeInfo)
                 print ("Report competition_report.txt generated!")
+                
 
                 return MATRIX_RESULT
 
@@ -263,20 +277,19 @@ def readResult(idval,previousResult):
                 studentList = MATRIX_RESULT[1]
                 competitionMatrix = previousResult[0]
 
-                #TODO print students
-
-
                 #process students for outputs
                 process_students_results = processStudents(studentList,competitionMatrix,previousResult[1])
 
                 #get the results
                 studentsList = process_students_results[0]
                 fastest_student = process_students_results[1]
+                displayString = displayStudentReportChart(studentsList)
 
-                displayStudentReportChart(studentsList)
-                
+                displayString = displayString + "The student with the fastest average time is "+ str(fastest_student.id) +"("+str(fastest_student.name)+") with an average time of "+"{:.2f}".format(float(fastest_student.avgTime))+" minutes."
+                global studentInfo
+                studentInfo = displayString
 
-                print ("The student with the fastest average time is ", fastest_student.id ,"(",fastest_student.name,") with an average time of","{:.2f}".format(float(fastest_student.avgTime)),"minutes.")
+                print(studentInfo)
                 print ("Report competition_report.txt generated!")
 
                 return MATRIX_RESULT
@@ -294,7 +307,6 @@ def displayStudentReportChart(studentList):
         displayString = displayString + "|\t{0:10}|\t{1:15}|\t{2:10}|\t{3:10}|\t{4:10}|\t{5:12}|\t{6:10}|\t{7:10}|\n".format(student.id,student.name,student.type,str(student.nongoing),str(student.nfinish),"{:.2f}".format(float(student.avgTime)),student.score,"{:.1f}".format(float(student.wScore)))
     
     displayString = displayString + "+-"*69 + "+\n"
-    print(displayString)
 
     return displayString
 
@@ -309,18 +321,26 @@ def isMandatoryChallenge(challengeID,challengeList):
 
 
 def getStudentWeightingLists():
-    
+    pass
+
+
+def generateReportDisplayString(competitionInfo,challengeInfo,studentInfo):
+    writeReportFile(competitionInfo+ "\n" + challengeInfo+"\n" + studentInfo)
+
+
+def writeReportFile(displayString):
+
+    now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S") 
+
+    with open('competition_report.txt', 'a') as f:
+        f.write( now + displayString+"\n\n\n\n")
+
 
 def processStudents(studentList,competitionMatrix,challengeList):
 
     studentModifiedList = []
     topStudent = ""
     topAvg = 1000#set top avg to a high number that probably will never happen
-
-    no_1_list = []
-    no_2_list = []
-    no_3_list= []
-    no_last_list = []
 
     for student in studentList:
         competition_totals = 0
@@ -425,7 +445,7 @@ def generateChallengeReport(updatedChallengesList):
 
     most_difficult_challenge=""
     difficult_avg_time =0
-    displayString = "\nCHALLENGE INFORMATION\n"
+    displayString = "CHALLENGE INFORMATION\n"
     displayString = displayString + "+-----------------"*6 + "+\n"
     displayString = displayString + "|\t{0:10}|\t{1:15}|\t{2:10}|\t{3:10}|\t{4:10}|\t{5:10}|\n".format("Challenge","Name","Weight","Nfinish","Nongoing","AverageTime")
     displayString = displayString + "+-----------------"*6 + "+\n"
@@ -443,11 +463,7 @@ def generateChallengeReport(updatedChallengesList):
         displayString = displayString + "|\t{0:10}|\t{1:12}({2})|\t{3:10}|\t{4:10}|\t{5:10}|\t{6:10}|\n".format(chl.id,chl.name,chl.type,weight,chl.nfinish,chl.nongoing,averageTime)
     
     displayString = displayString + "+-----------------"*6 + "+\n"
-    print(displayString)
-
-    #WRITE TO FILE
-    with open('competition_report.txt', 'w+') as f:
-        f.write(displayString)
+    
 
     return most_difficult_challenge ,difficult_avg_time,displayString 
     
@@ -529,5 +545,6 @@ if f=='':
 competition_matrix = readResult(0,"")
 challenges_matrix = readResult(1,competition_matrix[0])
 studentInput  = [competition_matrix[0],challenges_matrix[1]]
-students_matrix = readResult(2,studentInput)
+students_matrix = readResult(2,studentInput) 
+generateReportDisplayString(competitionInfo,challengeInfo,studentInfo)
 #Matrix = readResult(0)[2]
