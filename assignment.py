@@ -1,8 +1,6 @@
 import os
-from pickletools import dis
 import sys
-from unittest import result
- 
+
 
 #Static objects
 global top_student_average
@@ -56,8 +54,16 @@ def loadResultsMatrix(Matrix):
 
             #EVALUATE TOP STUDENT
             if idx != 0 and idy != 0:
-                if float(x) > 0 and not float(x) > 443:
-                    averageTotals = averageTotals + float(x)
+                try:
+                    if float(x) > 0 and not float(x) > 443:
+                        averageTotals = averageTotals + float(x)
+                except:#standardize
+                    if(str(x).lower() == "tba"):
+                        Matrix[idy][idx] = "444"
+                    else:
+                        Matrix[idy][idx] = "-1"
+                finally:
+                    pass
         
         #get average and optimize best value
         student_average = 0.0
@@ -120,8 +126,6 @@ def loadStudentMatrix(Matrix):
         #print(idy,item)
         itemFields = item.split(",")
         studentFields = []
-        most_difficult_challenge=''
-        averageTotals = 0.0
         for idx, x in enumerate(itemFields):
             #print(idx, x)
             #Store in 2D Array
@@ -132,9 +136,9 @@ def loadStudentMatrix(Matrix):
         
         #create challenge object from the data fields
         student = Student(studentFields[0],studentFields[1],studentFields[2])
-        
-    #create a collection of challenges
-    studentsList.append(student)
+       
+        #create a collection of challenges
+        studentsList.append(student)
 
     return Matrix,studentsList
 
@@ -162,12 +166,13 @@ def readResult(idval,previousResult):
                         string = '|\t'
                         for item in itemFields:
                             lineDisplayString = str(item)
+                            #print(lineDisplayString)
                             if isFirstTime :
                                 lineDisplayString = "Results"
                                 isFirstTime = False
-                            if lineDisplayString.strip() == "-1":
+                            if lineDisplayString.strip() == "-1" or lineDisplayString.strip().lower() == "na":
                                 lineDisplayString = "  "
-                            if lineDisplayString.strip() == "444":
+                            if lineDisplayString.strip() == "444" or lineDisplayString.strip().lower() == "tba":
                                 lineDisplayString = "--"
                             string =string +  lineDisplayString + "\t|\t"
            
@@ -185,15 +190,15 @@ def readResult(idval,previousResult):
                 #printData(Matrix)
                 #print("Matrix 1: " ,Matrix)
                 #LOAD MATIX
-                MATRIX_RESULT = loadResultsMatrix(Matrix)
-                Matrix = MATRIX_RESULT[0]
-                #print(Matrix)
-                num_students = len(Matrix) - 1
-                num_challenges = len(Matrix[0]) - 1
-                print ("There are",num_students,"Students and",num_challenges,"Challenges")
-                print ("The top student is",MATRIX_RESULT[2],"with an average time of","{:.2f}".format(MATRIX_RESULT[1]),"minutes.")
+                    MATRIX_RESULT = loadResultsMatrix(Matrix)
+                    Matrix = MATRIX_RESULT[0]
+                    #print(Matrix)
+                    num_students = len(Matrix) - 1
+                    num_challenges = len(Matrix[0]) - 1
+                    print ("There are",num_students,"Students and",num_challenges,"Challenges")
+                    print ("The top student is",MATRIX_RESULT[2],"with an average time of","{:.2f}".format(MATRIX_RESULT[1]),"minutes.")
 
-                return MATRIX_RESULT
+                    return MATRIX_RESULT
 
 
         elif idval == 1:
@@ -203,7 +208,6 @@ def readResult(idval,previousResult):
 
                 itemList = file.read().split("\n")
                 itemFields=""
-                isFirstTime = True
                 for item in itemList:
                     itemFields = item.split(",")
 
@@ -216,23 +220,22 @@ def readResult(idval,previousResult):
                 #DATA MAP
                 #printData(Matrix)
                 #LOAD MATIX
-            MATRIX_RESULT = loadChallengesMatrix(Matrix)
-            Matrix = MATRIX_RESULT[0]
-            challengesList = MATRIX_RESULT[1]
-            competitionMatrix = previousResult
-            updatedChallengesList = updateChallengeInfo(challengesList,competitionMatrix)
-            challengeOutput = generateChallengeReport(updatedChallengesList)
+                MATRIX_RESULT = loadChallengesMatrix(Matrix)
+                Matrix = MATRIX_RESULT[0]
+                challengesList = MATRIX_RESULT[1]
+                competitionMatrix = previousResult
+                updatedChallengesList = updateChallengeInfo(challengesList,competitionMatrix)
+                challengeOutput = generateChallengeReport(updatedChallengesList)
 
 
-            #print(Matrix)
-            most_difficult_challenge =challengeOutput[0]
-            difficult_avg_time = challengeOutput[1]
-            num_students = len(Matrix) - 1
-            num_challenges = len(Matrix[0]) - 1
-            print ("The most difficult challenge is ", most_difficult_challenge.name ,"(",most_difficult_challenge.id,") with an average time of","{:.2f}".format(difficult_avg_time),"minutes.")
-            print ("Report competition_report.txt generated!")
+                #print(Matrix)
+                most_difficult_challenge =challengeOutput[0]
+                difficult_avg_time = challengeOutput[1]
+                
+                print ("The most difficult challenge is ", most_difficult_challenge.name ,"(",most_difficult_challenge.id,") with an average time of","{:.2f}".format(difficult_avg_time),"minutes.")
+                print ("Report competition_report.txt generated!")
 
-            return MATRIX_RESULT
+                return MATRIX_RESULT
 
             
         elif idval == 2:
@@ -242,7 +245,6 @@ def readResult(idval,previousResult):
 
                 itemList = file.read().split("\n")
                 itemFields=""
-                isFirstTime = True
                 for item in itemList:
                     itemFields = item.split(",")
 
@@ -255,23 +257,117 @@ def readResult(idval,previousResult):
                 #DATA MAP
                 #printData(Matrix)
                 #LOAD MATIX
-            MATRIX_RESULT = loadChallengesMatrix(Matrix)
-            Matrix = MATRIX_RESULT[0]
-            challengesList = MATRIX_RESULT[1]
-            competitionMatrix = previousResult
-            updatedChallengesList = updateChallengeInfo(challengesList,competitionMatrix)
-            challengeOutput = generateChallengeReport(updatedChallengesList)
+                MATRIX_RESULT = loadStudentMatrix(Matrix)
+                Matrix = MATRIX_RESULT[0]
+                studentMatrix = MATRIX_RESULT[1]
+                studentList = MATRIX_RESULT[1]
+                competitionMatrix = previousResult[0]
+
+                #TODO print students
 
 
-            #print(Matrix)
-            most_difficult_challenge =challengeOutput[0]
-            difficult_avg_time = challengeOutput[1]
-            num_students = len(Matrix) - 1
-            num_challenges = len(Matrix[0]) - 1
-            print ("The most difficult challenge is ", most_difficult_challenge.name ,"(",most_difficult_challenge.id,") with an average time of","{:.2f}".format(difficult_avg_time),"minutes.")
-            print ("Report competition_report.txt generated!")
+                #process students for outputs
+                process_students_results = processStudents(studentList,competitionMatrix,previousResult[1])
 
-            return MATRIX_RESULT
+                #get the results
+                studentsList = process_students_results[0]
+                fastest_student = process_students_results[1]
+
+                displayStudentReportChart(studentsList)
+                
+
+                print ("The student with the fastest average time is ", fastest_student.id ,"(",fastest_student.name,") with an average time of","{:.2f}".format(float(fastest_student.avgTime)),"minutes.")
+                print ("Report competition_report.txt generated!")
+
+                return MATRIX_RESULT
+
+def displayStudentReportChart(studentList):
+
+    displayString = "\n STUDENT INFORMATION\n"
+    displayString = displayString + "+-"*69 + "+\n"
+    displayString = displayString + "|\t{0:10}|\t{1:15}|\t{2:10}|\t{3:10}|\t{4:10}|\t{5:12}|\t{6:10}|\t{7:10}|\n".format("StudentID","Name","Type","Nfinish","Nongoing","AverageTime","Score","Wscore")
+    displayString = displayString + "+-"*69 + "+\n"
+    
+    sortedStudentlist = sorted(studentList, key=lambda x: x.wScore, reverse=True)
+    for student in sortedStudentlist:
+
+        displayString = displayString + "|\t{0:10}|\t{1:15}|\t{2:10}|\t{3:10}|\t{4:10}|\t{5:12}|\t{6:10}|\t{7:10}|\n".format(student.id,student.name,student.type,str(student.nongoing),str(student.nfinish),"{:.2f}".format(float(student.avgTime)),student.score,"{:.1f}".format(float(student.wScore)))
+    
+    displayString = displayString + "+-"*69 + "+\n"
+    print(displayString)
+
+    return displayString
+
+def isMandatoryChallenge(challengeID,challengeList):
+    mandatoryIDList = []
+    for challenge in challengeList:
+        
+        if challenge.type.upper() == "M":
+            mandatoryIDList.append(challenge.id)
+
+    return challengeID in mandatoryIDList
+
+
+def getStudentWeightingLists():
+    
+
+def processStudents(studentList,competitionMatrix,challengeList):
+
+    studentModifiedList = []
+    topStudent = ""
+    topAvg = 1000#set top avg to a high number that probably will never happen
+
+    no_1_list = []
+    no_2_list = []
+    no_3_list= []
+    no_last_list = []
+
+    for student in studentList:
+        competition_totals = 0
+        nfinish = 0
+        nongoing = 0
+        countOfMandatory = 0  
+
+        for idy, item in enumerate(competitionMatrix):
+            for idx, x in enumerate(item):
+                if idy != 0  and idx != 0:#not column or row header (labels)
+                    
+                    student_id = competitionMatrix[idy][0].strip()#to be used to match student
+                    if student_id == student.id.strip():
+                        try:
+                            x_float = float(x.strip())
+                            if x_float > 0 and x_float < 444:
+                                competition_totals = competition_totals + x_float
+                                nfinish = nfinish + 1
+                                if isMandatoryChallenge(competitionMatrix[0][idx].strip(),challengeList):
+                                    countOfMandatory = countOfMandatory+1
+                            elif x_float > 443:
+                                nongoing = nongoing + 1                            
+                        except Exception as e:
+                            print("Something went wrong while parsing students", x , e)
+
+
+        avgTime = "--"
+        if nfinish > 0:
+            avgTime = competition_totals/nfinish
+
+        qP = str(student.type).strip().upper() =="P" and countOfMandatory > 1
+        qU = str(student.type).strip().upper() == "U" and countOfMandatory > 0
+        isQualified =  qP or qU
+        
+        if not isQualified:
+            student.setname("!"+student.name)
+        student.setNongoing(nongoing)            
+        student.setNfinish(nfinish)            
+        student.setAvgTime(avgTime)
+        studentModifiedList.append(student) 
+
+        if str(avgTime)!= "--" and avgTime != 0 and avgTime < topAvg:
+            topAvg = avgTime
+            topStudent = student
+
+    return studentModifiedList,topStudent
+    
 
 
 def updateChallengeInfo(challengesList,competitionMatrix):
@@ -333,7 +429,9 @@ def generateChallengeReport(updatedChallengesList):
     displayString = displayString + "+-----------------"*6 + "+\n"
     displayString = displayString + "|\t{0:10}|\t{1:15}|\t{2:10}|\t{3:10}|\t{4:10}|\t{5:10}|\n".format("Challenge","Name","Weight","Nfinish","Nongoing","AverageTime")
     displayString = displayString + "+-----------------"*6 + "+\n"
-    for chl in updatedChallengesList:
+    
+    sortedChallengesList = sorted(updatedChallengesList, key=lambda x: float(x.totalTime)/float(x.nfinish), reverse=False)
+    for chl in sortedChallengesList:
         avg = float(chl.totalTime)/float(chl.nfinish)
 
         if avg>difficult_avg_time:#record most difficult
@@ -351,9 +449,8 @@ def generateChallengeReport(updatedChallengesList):
     with open('competition_report.txt', 'w+') as f:
         f.write(displayString)
 
-    return most_difficult_challenge ,difficult_avg_time 
+    return most_difficult_challenge ,difficult_avg_time,displayString 
     
-
 
 
 class Competition():
@@ -362,13 +459,35 @@ class Competition():
         
         
 class Student():
+
+    score ="0"
+    wScore ="0"
+
+
     def __init__(self,id,name,type):
         self.id = id
         self.name = name
-        self.type = type    
+        self.type = type   
 
-        
+    def setAvgTime(self,avgTime):
+        self.avgTime = avgTime
 
+    def setNongoing(self,nongoing):
+        self.nongoing = nongoing
+
+    def setNfinish(self,nfinish):
+        self.nfinish = nfinish
+
+    def setname(self,modified_student_name):
+        self.name = modified_student_name
+
+    def setScore(self,score):
+        self.score = score
+
+    def setWscore(self,wScore):
+        self.wScore =wScore
+
+ 
 class Challenge():
 
     nongoing = ""
@@ -409,4 +528,6 @@ if f=='':
 #start the file reading as per the passed files
 competition_matrix = readResult(0,"")
 challenges_matrix = readResult(1,competition_matrix[0])
+studentInput  = [competition_matrix[0],challenges_matrix[1]]
+students_matrix = readResult(2,studentInput)
 #Matrix = readResult(0)[2]
